@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"go.uber.org/zap"
+	"my_db/internal/database"
 	"my_db/internal/database/storage"
+	"my_db/internal/database/storage/engine"
 	"os"
 )
 
@@ -17,12 +19,19 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	database, err := storage.NewDatabase(log, "in_memory")
+	eng, err := engine.NewEngine(log, engine.InMemoryEngineType)
 	if err != nil {
 		panic(err)
 	}
-	log.Info("database started...")
+	store, err := storage.NewStorage(log, eng)
+	if err != nil {
+		panic(err)
+	}
+	db, err := database.NewDatabase(log, store)
+	if err != nil {
+		panic(err)
+	}
+	log.Info("db started...")
 
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
@@ -30,7 +39,7 @@ func main() {
 		if cmd == "exit" {
 			return
 		}
-		value, err := database.Execute(cmd)
+		value, err := db.Execute(cmd)
 		if err != nil {
 			fmt.Printf("error: %s\n", err.Error())
 		} else {

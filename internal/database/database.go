@@ -1,9 +1,11 @@
-package storage
+package database
 
 import (
+	"errors"
 	"fmt"
 	"go.uber.org/zap"
 	"my_db/internal/database/compute"
+	storage2 "my_db/internal/database/storage"
 )
 
 const (
@@ -12,18 +14,17 @@ const (
 )
 
 type Database struct {
-	storage *Storage
+	storage *storage2.Storage
 	parser  *compute.Parser
 	logger  *zap.Logger
 }
 
-func NewDatabase(log *zap.Logger, engineType string) (*Database, error) {
-	store, err := NewStorage(log, engineType)
-	if err != nil {
-		return &Database{}, err
+func NewDatabase(log *zap.Logger, storage *storage2.Storage) (*Database, error) {
+	if storage == nil {
+		return nil, errors.New("storage is nil")
 	}
 	parser := compute.NewParser(log)
-	return &Database{store, parser, log}, nil
+	return &Database{storage, parser, log}, nil
 }
 
 func (db *Database) Execute(cmd string) (string, error) {

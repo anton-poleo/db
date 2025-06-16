@@ -1,4 +1,4 @@
-package engine
+package in_memory
 
 import (
 	"github.com/stretchr/testify/require"
@@ -20,7 +20,7 @@ func TestNewInMemoryEngine(t *testing.T) {
 	}
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
-			engine, err := NewInMemoryEngine(test.Log)
+			engine, err := NewEngine(test.Log)
 			require.Equal(t, test.Err, err)
 			require.NotNil(t, engine)
 		})
@@ -28,7 +28,7 @@ func TestNewInMemoryEngine(t *testing.T) {
 }
 
 func TestInMemoryEngine(t *testing.T) {
-	engine, _ := NewInMemoryEngine(zaptest.NewLogger(t))
+	engine, _ := NewEngine(zaptest.NewLogger(t))
 	engine.Set("key1", "value1")
 
 	val, ok := engine.Get("key1")

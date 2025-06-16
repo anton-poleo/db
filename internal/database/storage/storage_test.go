@@ -3,34 +3,41 @@ package storage
 import (
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap/zaptest"
-	"my_db/internal/database/storage/engine"
+	"my_db/internal/database/storage/engine/in_memory"
 	"testing"
 )
 
 func TestNewStorage(t *testing.T) {
 	t.Parallel()
-	tests := []struct {
-		Name       string
-		EngineType string
-		Error      error
-	}{
-		{"InMemory", engine.InMemoryEngineType, nil},
-		{"Unknown", "MyEngine", UnknownEngine},
-	}
 	log := zaptest.NewLogger(t)
+	eng, _ := in_memory.NewEngine(log)
+	tests := []struct {
+		Name   string
+		Engine Engine
+		Error  string
+	}{
+		{"InMemory", eng, ""},
+		{"Unknown", nil, "unknown engine type"},
+	}
 
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
-			st, err := NewStorage(log, test.EngineType)
-			require.ErrorIs(t, err, test.Error)
+			st, err := NewStorage(log, test.Engine)
 			require.IsType(t, &Storage{}, st)
+
+			if test.Error == "" {
+				require.NoError(t, err)
+			} else {
+				require.ErrorContains(t, err, test.Error)
+			}
 		})
 	}
 }
 
 func TestStorage_Get(t *testing.T) {
 	log := zaptest.NewLogger(t)
-	st, _ := NewStorage(log, engine.InMemoryEngineType)
+	eng, _ := in_memory.NewEngine(log)
+	st, _ := NewStorage(log, eng)
 
 	_ = st.Set("key", "value")
 
@@ -55,7 +62,8 @@ func TestStorage_Get(t *testing.T) {
 
 func TestStorage_Set(t *testing.T) {
 	log := zaptest.NewLogger(t)
-	st, _ := NewStorage(log, engine.InMemoryEngineType)
+	eng, _ := in_memory.NewEngine(log)
+	st, _ := NewStorage(log, eng)
 
 	_, err := st.Get("key")
 	require.ErrorIs(t, err, KeyNotFound)
@@ -73,7 +81,8 @@ func TestStorage_Set(t *testing.T) {
 
 func TestStorage_Delete(t *testing.T) {
 	log := zaptest.NewLogger(t)
-	st, _ := NewStorage(log, engine.InMemoryEngineType)
+	eng, _ := in_memory.NewEngine(log)
+	st, _ := NewStorage(log, eng)
 
 	_ = st.Set("key", "value")
 	err := st.Delete("key")

@@ -4,10 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"go.uber.org/zap"
-	"my_db/internal/database/storage/engine"
 )
 
-var UnknownEngine = errors.New("unknown engine type")
 var KeyNotFound = errors.New("not found key")
 
 type Engine interface {
@@ -21,17 +19,25 @@ type Storage struct {
 	log    *zap.Logger
 }
 
-func NewStorage(log *zap.Logger, engineType string) (*Storage, error) {
-	switch engineType {
-	case engine.InMemoryEngineType:
-		eng, err := engine.NewInMemoryEngine(log)
-		if err != nil {
-			return &Storage{}, err
-		}
-		return &Storage{eng, log}, nil
-	default:
-		return &Storage{}, fmt.Errorf("%w: %s", UnknownEngine, engineType)
+func NewStorage(log *zap.Logger, engine Engine) (*Storage, error) {
+	if engine == nil {
+		return nil, errors.New("unknown engine type")
 	}
+	if log == nil {
+		return nil, errors.New("unknown engine type")
+	}
+
+	return &Storage{engine, log}, nil
+	//switch engineType {
+	//case engine.InMemoryEngineType:
+	//	eng, err := engine.NewInMemoryEngine(log)
+	//	if err != nil {
+	//		return &Storage{}, err
+	//	}
+	//	return &Storage{eng, log}, nil
+	//default:
+	//	return &Storage{}, fmt.Errorf("%w: %s", UnknownEngine, engineType)
+	//}
 }
 
 func (s *Storage) Get(key string) (string, error) {
