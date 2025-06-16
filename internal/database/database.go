@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"go.uber.org/zap"
 	"my_db/internal/database/compute"
-	storage2 "my_db/internal/database/storage"
 )
 
 const (
@@ -13,13 +12,19 @@ const (
 	ResponseError = "Error"
 )
 
+type Storage interface {
+	Get(key string) (string, error)
+	Set(key string, value string) error
+	Delete(key string) error
+}
+
 type Database struct {
-	storage *storage2.Storage
+	storage Storage
 	parser  *compute.Parser
 	logger  *zap.Logger
 }
 
-func NewDatabase(log *zap.Logger, storage *storage2.Storage) (*Database, error) {
+func NewDatabase(log *zap.Logger, storage Storage) (*Database, error) {
 	if storage == nil {
 		return nil, errors.New("storage is nil")
 	}

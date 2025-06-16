@@ -1,0 +1,11 @@
+env: "local"
+
+engine: "in_memory"
+network:
+  address: "127.0.0.1:3223"
+  max_connections: 100
+  max_message_size: 1024
+  idle_timeout: 5m
+logging:
+  level: "info"
+  output: "/log/output.log"

@@ -28,16 +28,6 @@ func NewStorage(log *zap.Logger, engine Engine) (*Storage, error) {
 	}
 
 	return &Storage{engine, log}, nil
-	//switch engineType {
-	//case engine.InMemoryEngineType:
-	//	eng, err := engine.NewInMemoryEngine(log)
-	//	if err != nil {
-	//		return &Storage{}, err
-	//	}
-	//	return &Storage{eng, log}, nil
-	//default:
-	//	return &Storage{}, fmt.Errorf("%w: %s", UnknownEngine, engineType)
-	//}
 }
 
 func (s *Storage) Get(key string) (string, error) {

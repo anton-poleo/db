@@ -23,7 +23,7 @@ func TestNewDatabase(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		Name    string
-		Storage *storage.Storage
+		Storage Storage
 		Error   string
 	}{
 		{"InMemory", InitTestStorage(log), ""},
