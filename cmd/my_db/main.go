@@ -12,8 +12,9 @@ import (
 
 func main() {
 	config := zap.Config{
-		Level:    zap.NewAtomicLevelAt(zap.DebugLevel),
-		Encoding: "console",
+		Level:       zap.NewAtomicLevelAt(zap.DebugLevel),
+		Encoding:    "console",
+		OutputPaths: []string{"stdout"},
 	}
 	log, err := config.Build()
 	if err != nil {
